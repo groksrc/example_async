@@ -20,23 +20,23 @@ defmodule ExampleAsync.Saver do
     GenServer.cast(__MODULE__, {:set, key, value})
   end
 
-  def set_call_async(key, value) do
+  def set_call_reply(key, value) do
     GenServer.call(__MODULE__, {:set_async, key, value})
   end
 
   def get(key) do
-    GenServer.call(__MODULE__, {:get, key}, :infinity)
+    GenServer.call(__MODULE__, {:get, key})
   end
 
   def handle_call({:set, key, value}, _from, redis) do
-    retval = Redix.command!(redis, ["SET", key, value])
-    {:reply, retval, redis}
+    do_set(redis, key, value)
+    {:reply, :ok, redis}
   end
 
   def handle_call({:set_async, key, value}, from, redis) do
     GenServer.reply(from, :ok)
 
-    Redix.command!(redis, ["SET", key, value])
+    do_set(redis, key, value)
     {:noreply, redis}
   end
 
@@ -47,7 +47,11 @@ defmodule ExampleAsync.Saver do
 
   # GenServer callback for GenServer.call
   def handle_cast({:set, key, value}, redis) do
-    Redix.command!(redis, ["SET", key, value])
+    do_set(redis, key, value)
     {:noreply, redis}
+  end
+
+  defp do_set(redis, key, value) do
+    Redix.command!(redis, ["SET", key, value])
   end
 end
