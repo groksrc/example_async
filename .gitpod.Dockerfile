@@ -8,6 +8,6 @@ FROM gitpod/workspace-full
 RUN sudo apt-get update \
     && wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb && sudo dpkg -i erlang-solutions_2.0_all.deb \
     && sudo apt-get install -y \
-      redis-server
-      esl-erlang
+      redis-server \
+      esl-erlang \
       elixir
